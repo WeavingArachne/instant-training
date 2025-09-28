@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🧠 Brain MRI Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex flex-col items-center p-6"
+  >
+    <div class="w-full max-w-3xl bg-white shadow-xl rounded-2xl p-8">
+      <header class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">
+          🧠 Brain MRI Analyzer
+        </h1>
+        <p class="text-gray-600">
+          Advanced AI-powered brain tumor detection and segmentation
+        </p>
+      </header>
+
+      <!-- Tabs -->
+      <div class="flex border-b border-gray-200 mb-6">
+        <button
+          onclick="switchTab('classification')"
+          id="classification-tab"
+          class="px-6 py-3 border-b-2 border-blue-500 text-blue-600 font-medium transition-colors"
+        >
+          🔍 Classification
+        </button>
+        <button
+          onclick="switchTab('segmentation')"
+          id="segmentation-tab"
+          class="px-6 py-3 border-b-2 border-transparent text-gray-500 font-medium hover:text-gray-700 transition-colors"
+        >
+          🎯 Segmentation
+        </button>
+      </div>
+
+      <!-- Error Display -->
+      {% if error %}
+      <div
+        class="mb-4 p-4 bg-red-100 border border-red-300 text-red-700 rounded-xl"
+      >
+        <strong>❌ Error:</strong> {{ error }}
+      </div>
+      {% endif %}
+
+      <!-- Classification Tab -->
+      <div id="classification" class="tab-content">
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+          <h3 class="text-lg font-semibold text-blue-800 mb-2">
+            Tumor Classification
+          </h3>
+          <p class="text-blue-600 text-sm">
+            Upload an MRI image to detect the presence of brain tumors using our
+            trained AI model.
+          </p>
+        </div>
+
+        <form
+          action="/"
+          method="post"
+          enctype="multipart/form-data"
+          class="space-y-6"
+        >
+          <input type="hidden" name="mode" value="classification" />
+
+          <div
+            class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors"
+          >
+            <input
+              type="file"
+              name="file"
+              accept="image/*"
+              required
+              onchange="previewImage(event, 'classification')"
+              class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            />
+            <p class="mt-2 text-sm text-gray-500">
+              Supported formats: JPG, PNG, TIFF
+            </p>
+            <!-- Preview container -->
+            <img
+              id="preview-classification"
+              class="mt-4 mx-auto max-h-64 rounded-lg shadow-md hidden"
+              alt="Preview"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-blue-500 text-white py-3 px-6 rounded-xl shadow-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            🔍 Analyze for Tumors
+          </button>
+        </form>
+
+        {% if result and tab == "classification" %}
+        <div class="mt-6 space-y-4">
+          <!-- Show uploaded image -->
+          {% if uploaded_image %}
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">
+              📷 Analyzed Image:
+            </h4>
+            <img
+              src="{{ uploaded_image }}"
+              class="mx-auto max-h-64 rounded-lg shadow-md"
+              alt="Analyzed MRI"
+            />
+          </div>
+          {% endif %}
+          <!-- Show result -->
+          <div
+            class="p-4 bg-green-100 border border-green-300 text-green-700 rounded-xl"
+          >
+            <strong>📊 Result:</strong> {{ result }}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Segmentation Tab -->
+      <div id="segmentation" class="tab-content hidden">
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-6 mb-6">
+          <h3 class="text-lg font-semibold text-purple-800 mb-2">
+            Tumor Segmentation
+          </h3>
+          <p class="text-purple-600 text-sm">
+            Upload an MRI image to identify and highlight tumor regions within
+            the brain tissue.
+          </p>
+        </div>
+
+        <form
+          action="/"
+          method="post"
+          enctype="multipart/form-data"
+          class="space-y-6"
+        >
+          <input type="hidden" name="mode" value="segmentation" />
+
+          <div
+            class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-purple-400 transition-colors"
+          >
+            <input
+              type="file"
+              name="file"
+              accept="image/*"
+              required
+              onchange="previewImage(event, 'segmentation')"
+              class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+            />
+            <p class="mt-2 text-sm text-gray-500">
+              Supported formats: JPG, PNG, TIFF
+            </p>
+            <!-- Preview container -->
+            <img
+              id="preview-segmentation"
+              class="mt-4 mx-auto max-h-64 rounded-lg shadow-md hidden"
+              alt="Preview"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-purple-500 text-white py-3 px-6 rounded-xl shadow-lg hover:bg-purple-600 transition-colors font-medium"
+          >
+            🎯 Segment Tumor Regions
+          </button>
+        </form>
+
+        {% if seg_result and tab == "segmentation" %}
+        <div class="mt-6 space-y-4">
+          <!-- Show segmentation result image if available -->
+          {% if seg_result.segmentation_image %}
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">
+              🎯 Segmentation Result:
+            </h4>
+            <img
+              src="{{ seg_result.segmentation_image }}"
+              class="mx-auto max-w-full rounded-lg shadow-md"
+              alt="Segmented MRI"
+            />
+          </div>
+          {% elif uploaded_image %}
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">
+              📷 Analyzed Image:
+            </h4>
+            <img
+              src="{{ uploaded_image }}"
+              class="mx-auto max-h-64 rounded-lg shadow-md"
+              alt="Analyzed MRI"
+            />
+          </div>
+          {% endif %}
+          <!-- Show result message -->
+          <div
+            class="p-4 {% if seg_result.segmentation_image %}bg-green-100 border-green-300 text-green-700{% else %}bg-red-100 border-red-300 text-red-700{% endif %} border rounded-xl"
+          >
+            <strong>🎯 Segmentation Status:</strong>
+            <p class="mt-2">{{ seg_result.message }}</p>
+            <p class="text-sm mt-1">{{ seg_result.details }}</p>
+            {% if seg_result.note %}
+            <p class="text-xs text-gray-500 mt-2 italic">
+              {{ seg_result.note }}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <footer class="mt-8 text-center text-gray-500 text-sm"></footer>
+
+    <script>
+      function previewImage(event, mode) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = document.getElementById(`preview-${mode}`);
+            img.src = e.target.result;
+            img.classList.remove("hidden");
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      function switchTab(tab) {
+        // Hide all tab contents
+        document.querySelectorAll(".tab-content").forEach((el) =>
+          el.classList.add("hidden")
+        );
+
+        // Show selected tab
+        document.getElementById(tab).classList.remove("hidden");
+
+        // Update tab button styles
+        document.querySelectorAll("button[id$='-tab']").forEach((el) => {
+          el.classList.remove("text-blue-600", "border-blue-500");
+          el.classList.add("text-gray-500", "border-transparent");
+        });
+
+        const selectedTab = document.getElementById(tab + "-tab");
+        selectedTab.classList.remove("text-gray-500", "border-transparent");
+        selectedTab.classList.add("text-blue-600", "border-blue-500");
+      }
+
+      // Initialize tab based on server response
+      {% if tab %}
+      document.addEventListener('DOMContentLoaded', function() {
+        switchTab("{{ tab }}");
+      });
+      {% endif %}
+    </script>
+  </body>
+</html>
